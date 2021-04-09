@@ -48,7 +48,6 @@ exports.uploadFile = (imageFile, videoFile) => {
   }).fields([
     {
       name: imageFile,
-      maxCount: 1,
     },
     {
       name: videoFile,

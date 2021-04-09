@@ -3,7 +3,6 @@
     border-radius: 10px;
     width: 100px;
     height: 40px;
-    margin-left: 1vw;
     font-size: 14px;
     font-weight: 700;
 }
@@ -11,6 +10,7 @@
 .navbar-container .btn-register{
     background-color: #FF9F00;
     color: #FFF;
+    height: 4%;
 }
 
 .navbar-container .btn-login{

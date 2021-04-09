@@ -27,24 +27,24 @@ const Template = () => {
       >
         <Row className="d-flex">
           <Col>
-            <Link className="btn" to="/create-link">
+            <Link className="btn" to="/create-link/1">
               <img src={template1} alt={template1} />
             </Link>
           </Col>
           <Col>
-            <div className="btn">
+            <Link className="btn" to="/create-link/2">
               <img src={template2} alt={template2} />
-            </div>
+            </Link>
           </Col>
           <Col>
-            <div className="btn">
+            <Link className="btn" to="/create-link/3">
               <img src={template3} alt={template3} />
-            </div>
+            </Link>
           </Col>
           <Col>
-            <div className="btn">
+            <Link className="btn" to="/create-link/4">
               <img src={template4} alt={template4} />
-            </div>
+            </Link>
           </Col>
         </Row>
       </div>

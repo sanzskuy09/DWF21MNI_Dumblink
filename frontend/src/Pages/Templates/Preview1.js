@@ -1,67 +1,20 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery } from "react-query";
-import { useParams, Link, useHistory } from "react-router-dom";
+import { Button } from "react-bootstrap";
+import profile from "../../Assets/images/profil-user.png";
 
-import { API } from "../Config/api";
+import { useHistory } from "react-router-dom";
 
-import Preview1 from "./Templates/Preview1";
-import Preview2 from "./Templates/Preview2";
-import Preview3 from "./Templates/Preview3";
-
-const PreviewPage = () => {
-  const params = useParams();
-  const { uniqueLink } = params;
-
-  const { data: linkData, refetch } = useQuery("linkCache", async () => {
-    const response = await API.get(`/link/${uniqueLink}`);
-    return response.data.data.links;
-  });
-
-  const [count, setCount] = useState(0);
-
-  const setDataCount = async () => {
-    setCount(linkData?.viewCount);
-  };
-
-  console.log(linkData.template);
-
-  const updateCount = useMutation(async () => {
-    const body = JSON.stringify({
-      viewCount: parseInt(count) + 1,
-    });
-
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    const res = await API.patch(`/link/${uniqueLink}`, body, config);
-    console.log(res?.data?.data);
-    refetch();
-  });
-
-  const handleCount = async () => {
-    updateCount.mutate();
-  };
-
-  useEffect(() => {
-    setDataCount();
-  }, [linkData]);
+const Preview1 = ({ linkData, handleCount }) => {
+  const history = useHistory();
 
   return (
-    <>
-      {linkData.template == 1 && (
-        <Preview1 linkData={linkData} handleCount={handleCount} />
-      )}
-      {linkData.template == 2 && (
-        <Preview2 linkData={linkData} handleCount={handleCount} />
-      )}
-      {linkData.template == 3 && (
-        <Preview3 linkData={linkData} handleCount={handleCount} />
-      )}
-
-      {/* <div className="container p-5 preview-container">
+    <div
+      className="container-fluid"
+      //   style={{
+      //     background: "linear-gradient(180deg, #89AFBB 0%, #BCD8E1 100%)",
+      //     height: "100vh",
+      //   }}
+    >
+      <div className="container p-5 preview1-container">
         <div className="d-flex flex-column justify-content-center align-items-center">
           <div className="">
             <img
@@ -71,6 +24,7 @@ const PreviewPage = () => {
                 width: "90px",
                 height: "90px",
                 objectFit: "cover",
+                border: "2px solid black",
                 borderRadius: "50%",
               }}
             />
@@ -126,9 +80,9 @@ const PreviewPage = () => {
             </Button>
           </div>
         </div>
-      </div> */}
-    </>
+      </div>
+    </div>
   );
 };
 
-export default PreviewPage;
+export default Preview1;

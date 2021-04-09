@@ -12,6 +12,8 @@ import logoutImage from "../../Assets/images/logout-img.svg";
 
 import { Nav } from "react-bootstrap";
 
+import "./homepage.css";
+
 const NavVertical = () => {
   const [state, dispatch] = useContext(UserContext);
   const Logout = () => {
@@ -33,11 +35,11 @@ const NavVertical = () => {
         }}
       >
         <Nav className="nav d-flex flex-column align-items-baseline">
-          <div className="mt-3" href="#">
+          <Link className="mt-3" to="/template">
             <img src={brandName} alt={brandName} />
-          </div>
+          </Link>
           <Link
-            className="mt-5 text-center navbar-vertical-text d-flex"
+            className="mt-5 text-center navbar-vertical-text d-flex margin-text"
             style={{ textDecoration: "none", color: "#000" }}
             to="/template"
           >
@@ -45,7 +47,7 @@ const NavVertical = () => {
             Template
           </Link>
           <Link
-            className="mt-4 text-center navbar-vertical-text d-flex"
+            className="text-center navbar-vertical-text d-flex margin-text"
             style={{ textDecoration: "none", color: "#000" }}
             to="/profile"
           >
@@ -53,7 +55,7 @@ const NavVertical = () => {
             Profil
           </Link>
           <Link
-            className="mt-4 text-center navbar-vertical-text d-flex"
+            className="text-center navbar-vertical-text d-flex"
             style={{ textDecoration: "none", color: "#000" }}
             to="/my-link"
           >

@@ -14,6 +14,12 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
+      image: {
+        type: Sequelize.STRING,
+      },
+      template: {
+        type: Sequelize.STRING,
+      },
       uniqueLink: {
         type: Sequelize.STRING,
       },

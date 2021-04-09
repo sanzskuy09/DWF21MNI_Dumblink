@@ -47,3 +47,17 @@ body{
   outline: none;
   border: none;
 }
+
+/* back Button in previewPage */
+.container .btn-back{
+  background-color: #FF9F00;
+  color: #FFF;
+  width: 10vw;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+/* .preview3-container{
+  background-image: url("./Assets/images/profil-user.png");
+} */

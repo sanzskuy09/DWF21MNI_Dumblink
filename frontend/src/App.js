@@ -69,7 +69,11 @@ function App() {
           <Route exact path="/" component={LandingPage} />
           <Switch>
             <PrivateRoute exact path="/template" component={Template} />
-            <PrivateRoute exact path="/create-link" component={CreateLink} />
+            <PrivateRoute
+              exact
+              path="/create-link/:id"
+              component={CreateLink}
+            />
             <PrivateRoute exact path="/my-link" component={MyLink} />
             <PrivateRoute exact path="/profile" component={Profile} />
             <PrivateRoute

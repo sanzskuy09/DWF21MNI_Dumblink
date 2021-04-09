@@ -37,7 +37,7 @@ const Profile = () => {
     "userCache",
     async () => {
       const response = await API.get(`/user/${id}`);
-      return response.data.data.users;
+      return response?.data?.data?.users;
     }
   );
 
@@ -87,7 +87,7 @@ const Profile = () => {
   }, []);
 
   return (
-    <>
+    <div className="container-profile">
       <NavVertical />
 
       <Navbar style={{ marginLeft: "20%", backgroundColor: "#FFF" }}>
@@ -96,51 +96,66 @@ const Profile = () => {
         </span>
       </Navbar>
 
-      <div className="p-3 d-flex" style={{ marginLeft: "20%" }}>
+      <div className="p-3 d-flex text-title" style={{ marginLeft: "21%" }}>
         My Information
       </div>
+
       <div
         className="p-3"
         style={{
-          marginLeft: "21%",
+          marginLeft: "22%",
           width: "75%",
           height: "277px",
           backgroundColor: "#FFF",
+          borderRadius: "10px",
         }}
       >
         <Form onSubmit={(e) => onSubmit(e)}>
-          <Form.Group>
-            <Form.Label>Name</Form.Label>
+          <Form.Group className="form-group ">
+            <Form.Label className="form-label">Name</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter name"
+              className="form-field input-style"
               name="fullName"
               value={fullName}
               onChange={(e) => onChange(e)}
+              autoComplete="off"
             />
           </Form.Group>
-          <Form.Group>
-            <Form.Label>Email </Form.Label>
+          <Form.Group className="form-group mt-4">
+            <Form.Label className="form-label">Email</Form.Label>
             <Form.Control
               type="email"
               placeholder="Enter email"
+              className="form-field input-style"
               name="email"
               value={email}
               onChange={(e) => onChange(e)}
               disabled
             />
           </Form.Group>
-          <div className="d-flex justify-content-end mr-5 mt-3">
-            <Button variant="warning" type="submit">
-              Save Acount
-            </Button>
-            <Button variant="danger" type="button" onClick={deleteUserById}>
-              Delete Acount
-            </Button>
-          </div>
         </Form>
       </div>
-    </>
+      <div className="d-flex justify-content-end btn-submit">
+        <Button
+          variant="warning"
+          type="button"
+          onClick={onSubmit}
+          className="mr-3 btn btn-style"
+        >
+          Save Acount
+        </Button>
+        <Button
+          variant="danger"
+          type="button"
+          onClick={deleteUserById}
+          className="btn btn-style"
+        >
+          Delete Acount
+        </Button>
+      </div>
+    </div>
   );
 };
 

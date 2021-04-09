@@ -56,7 +56,7 @@ exports.getlinks = async (req, res) => {
     const { uniqueLink } = req.params;
     console.log(uniqueLink);
 
-    const linkFromDatabase = await link.findOne({
+    const links = await link.findOne({
       where: {
         uniqueLink,
       },
@@ -72,26 +72,11 @@ exports.getlinks = async (req, res) => {
       },
     });
 
-    const linkString = JSON.stringify(linkFromDatabase);
-    const linkObject = JSON.parse(linkString);
-
-    const links = linkObject.links.map((link) => ({
-      ...link,
-      image: urlImg + link.image,
-    }));
-
     res.send({
       status: "success",
       message: "Success get link",
       data: {
-        link: {
-          id: linkFromDatabase.id,
-          title: linkFromDatabase.title,
-          description: linkFromDatabase.description,
-          uniqueLink: linkFromDatabase.uniqueLink,
-          viewCount: linkFromDatabase.viewCount,
-          links: links,
-        },
+        links,
       },
     });
   } catch (error) {
@@ -106,14 +91,16 @@ exports.getlinks = async (req, res) => {
 exports.addLink = async (req, res) => {
   try {
     const { body } = req;
+    console.log(body);
+
+    const { title, description, links } = req.body;
 
     const schema = Joi.object({
       title: Joi.string().min(5).max(50).required(),
       description: Joi.string().min(5).max(255).required(),
-      links: Joi.array().required(),
     });
 
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate({ title, description });
 
     if (error)
       return res.status(400).send({
@@ -124,7 +111,6 @@ exports.addLink = async (req, res) => {
     const uniqueLink = () => {
       return Math.random().toString(36).substr(2, 7);
     };
-    console.log(uniqueLink());
 
     if (body.links.length < 2)
       return res.status(400).send({
@@ -134,21 +120,39 @@ exports.addLink = async (req, res) => {
 
     const { id: linkId } = await link.create({
       ...body,
+      image: urlImg + req.files.imageFile[0].filename,
       viewCount: 0,
       uniqueLink: uniqueLink(),
       userId: req.userId.id,
     });
 
+    const linkToJSON = JSON.parse(links);
+    // console.log("ini lonk", linkToJSON);
+    // const linkToparse = JSON.parse(linkToJSON);
+    // console.log("ini lparse", linkToparse);
+
+    // const sublinks = linkToparse.map((link, index) => ({
+    //   ...link,
+    //   title: link.title,
+    //   url: link.url,
+    //   linkId,
+    // }));
+    // console.log("ini sublink", sublinks);
+
+    // const allLinks = await sublink.bulkCreate(sublinks);
+    // console.log("in link", linkToJSON);
+
     await sublink.bulkCreate(
-      body.links.map((link) => ({
+      linkToJSON.map((link, index) => ({
+        ...link,
         linkId,
-        title: link.title,
-        url: link.url,
-        image: urlImg + link.image,
+        // image: urlImg + fileName[index],
       }))
     );
+    console.log("ini req file", req.files.imageFile[0].filename);
 
-    const links = await link.findOne({
+    // console.log(linkToJSON);
+    const newLinks = await link.findOne({
       where: {
         id: linkId,
       },
@@ -167,6 +171,71 @@ exports.addLink = async (req, res) => {
     res.send({
       status: "success",
       message: "Success add link",
+      data: {
+        links: newLinks,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: "error",
+      message: "Server Error",
+    });
+  }
+};
+
+// upload image sublink
+exports.uploadImageSublinks = async (req, res) => {
+  try {
+    const image = urlImg + req.files.imageLink[0].filename;
+
+    console.log(image);
+    res.send({
+      status: "success",
+      message: "Success upload file",
+      data: {
+        image,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: "error",
+      message: "Server Error",
+    });
+  }
+};
+
+// update Count link
+exports.updateCount = async (req, res) => {
+  try {
+    const { uniqueLink } = req.params;
+    const { body } = req;
+    console.log(uniqueLink);
+
+    await link.update(body, {
+      where: {
+        uniqueLink,
+      },
+    });
+
+    const links = await link.findOne({
+      where: {
+        uniqueLink,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "userId"],
+      },
+      include: {
+        model: sublink,
+        as: "links",
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "linkId"],
+        },
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: "Success Update Count",
       data: {
         links,
       },
@@ -207,6 +276,92 @@ exports.deleteLink = async (req, res) => {
       message: "Success delete link",
       data: {
         id,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: "error",
+      message: "Server Error",
+    });
+  }
+};
+
+// add Link (optional)
+exports.addLinkNoMulter = async (req, res) => {
+  try {
+    const { body } = req;
+    // const fileName = req.files.imageFile.map((e) => e.filename);
+    const { template, title, description, links } = req.body;
+    console.log(body);
+
+    const schema = Joi.object({
+      title: Joi.string().min(5).max(50).required(),
+      description: Joi.string().min(5).max(255).required(),
+      links: Joi.array().items(
+        Joi.object({
+          title: Joi.string().required(),
+          url: Joi.string().required(),
+          image: Joi.any(),
+        })
+      ),
+    });
+
+    const { error } = schema.validate({ title, description, links });
+
+    if (error)
+      return res.status(400).send({
+        status: "validation failed",
+        message: error.details[0].message,
+      });
+
+    const uniqueLink = () => {
+      return Math.random().toString(36).substr(2, 7);
+    };
+
+    if (body.links.length < 2)
+      return res.status(400).send({
+        status: "Falied",
+        message: "You must enter at least 2 links",
+      });
+
+    const { id: linkId } = await link.create({
+      ...body,
+      viewCount: 0,
+      uniqueLink: uniqueLink(),
+      userId: req.userId.id,
+    });
+
+    await sublink.bulkCreate(
+      body.links.map((link, index) => ({
+        ...link,
+        linkId,
+        title: link.title,
+        url: link.url,
+        // image: urlImg + fileName[index],
+      }))
+    );
+
+    const newLinks = await link.findOne({
+      where: {
+        id: linkId,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "userId", "viewCount"],
+      },
+      include: {
+        model: sublink,
+        as: "links",
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "linkId"],
+        },
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: "Success add link",
+      data: {
+        links: newLinks,
       },
     });
   } catch (error) {

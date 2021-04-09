@@ -14,6 +14,9 @@ const {
   addLink,
   getlinks,
   deleteLink,
+  updateCount,
+  addLinkNoMulter,
+  uploadImageSublinks,
 } = require("../controllers/link");
 
 const { registerUser, loginUser, checkAuth } = require("../controllers/auth");
@@ -30,8 +33,18 @@ router.delete("/user/:id", authenticated, deleteUser);
 // List Link
 router.get("/links", authenticated, getMyLink);
 router.get("/link/:uniqueLink", authenticated, getlinks);
-router.post("/link", authenticated, addLink);
+router.post("/link", authenticated, uploadFile("imageFile"), addLink);
+// router.post("/link", authenticated, addLinkNoMulter);
+router.patch("/link/:uniqueLink", authenticated, updateCount);
 router.delete("/link/:id", authenticated, deleteLink);
+
+// upload image sublink
+router.post(
+  "/image-link",
+  authenticated,
+  uploadFile("imageLink"),
+  uploadImageSublinks
+);
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
