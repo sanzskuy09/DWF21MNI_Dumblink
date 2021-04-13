@@ -17,13 +17,13 @@ const PreviewPage = () => {
     return response.data.data.links;
   });
 
+  console.log(linkData);
+
   const [count, setCount] = useState(0);
 
   const setDataCount = async () => {
     setCount(linkData?.viewCount);
   };
-
-  console.log(linkData.template);
 
   const updateCount = useMutation(async () => {
     const body = JSON.stringify({
@@ -51,13 +51,13 @@ const PreviewPage = () => {
 
   return (
     <>
-      {linkData.template == 1 && (
+      {linkData?.template == 1 && (
         <Preview1 linkData={linkData} handleCount={handleCount} />
       )}
-      {linkData.template == 2 && (
+      {linkData?.template == 2 && (
         <Preview2 linkData={linkData} handleCount={handleCount} />
       )}
-      {linkData.template == 3 && (
+      {linkData?.template == 3 && (
         <Preview3 linkData={linkData} handleCount={handleCount} />
       )}
 

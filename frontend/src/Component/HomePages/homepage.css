@@ -10,15 +10,25 @@
     margin-bottom: 2vh;
 }
 
-.navbar-vertical-text{
-    font-size: 24px;
-    font-weight: 500;
-}
-
 /* navbar vertical */
 .margin-text{
     margin-bottom: 5vh;
 }
+
+.navbar-container .main-nav{
+    font-size: 24px;
+    font-weight: 500;
+    color: #000;
+    text-decoration: none;
+}
+
+.navbar-container .main-nav-active{
+    font-size: 24px;
+    font-weight: 500;
+    color: #FF9F00;
+    text-decoration: none;
+}
+
 
 /* form Profile */
 .container-profile .form-group .form-field, .form-group .form-field:disabled{

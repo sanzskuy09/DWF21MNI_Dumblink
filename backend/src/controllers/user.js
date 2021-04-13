@@ -106,8 +106,8 @@ exports.updateUser = async (req, res) => {
       },
     });
 
-    res.send({
-      status: "success",
+    res.status(200).send({
+      status: "Success",
       message: "User successfully updated",
       data: {
         userData,

@@ -1,4 +1,4 @@
-import { Navbar, Form, Button } from "react-bootstrap";
+import { Navbar, Form, Button, Alert, Modal } from "react-bootstrap";
 import { useMutation, useQuery } from "react-query";
 import { useContext, useState, useEffect } from "react";
 
@@ -11,12 +11,25 @@ import NavVertical from "./NavVertical";
 const Profile = () => {
   const [state, dispatch] = useContext(UserContext);
 
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
   });
   const { id } = state.user;
   const { email, fullName } = form;
+
+  const { data: UserData, isLoading, isError, refetch } = useQuery(
+    "userCache",
+    async () => {
+      const response = await API.get(`/user/${id}`);
+      return response.data.data.users;
+    }
+  );
 
   const onChange = (e) => {
     setForm({
@@ -33,14 +46,6 @@ const Profile = () => {
     });
   };
 
-  const { data: UserData, isLoading, isError, refetch } = useQuery(
-    "userCache",
-    async () => {
-      const response = await API.get(`/user/${id}`);
-      return response?.data?.data?.users;
-    }
-  );
-
   const updateUser = useMutation(async () => {
     const body = JSON.stringify({
       fullName,
@@ -56,6 +61,7 @@ const Profile = () => {
 
     const res = await API.patch(`/user/${id}`, body, config);
     console.log(res);
+
     dispatch({
       type: "EDIT_SUCCESS",
       payload: {
@@ -63,6 +69,12 @@ const Profile = () => {
         token: localStorage.token,
       },
     });
+
+    {
+      res.status == 200 && (
+        <Alert variant="success">This is a success alert—check it out!</Alert>
+      );
+    }
     refetch();
   });
 
@@ -84,7 +96,7 @@ const Profile = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [UserData]);
 
   return (
     <div className="container-profile">
@@ -105,11 +117,14 @@ const Profile = () => {
         style={{
           marginLeft: "22%",
           width: "75%",
-          height: "277px",
+          miHeight: "277px",
           backgroundColor: "#FFF",
           borderRadius: "10px",
         }}
       >
+        {updateUser.status == "success" && (
+          <Alert variant="success">User successfully updated</Alert>
+        )}
         <Form onSubmit={(e) => onSubmit(e)}>
           <Form.Group className="form-group ">
             <Form.Label className="form-label">Name</Form.Label>
@@ -149,12 +164,36 @@ const Profile = () => {
         <Button
           variant="danger"
           type="button"
-          onClick={deleteUserById}
+          onClick={handleShow}
           className="btn btn-style"
         >
           Delete Acount
         </Button>
       </div>
+
+      <Modal show={show} onHide={handleClose} centered className="modal-delete">
+        <Modal.Body className="modal-body p-4">
+          <p>
+            You are sure you want to <strong>Delete</strong> this Account ?
+          </p>
+          <div className="d-flex justify-content-end">
+            <Button
+              variant="transparant"
+              className="btn btn-agree btn-style"
+              onClick={deleteUserById}
+            >
+              Yes
+            </Button>
+            <Button
+              variant="transparant"
+              className="btn btn-disagree btn-style"
+              onClick={handleClose}
+            >
+              No
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

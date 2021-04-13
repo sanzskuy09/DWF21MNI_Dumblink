@@ -53,6 +53,7 @@ exports.registerUser = async (req, res) => {
       status: "success",
       data: {
         user: {
+          id: userData.id,
           email: userData.email,
           fullName: userData.fullName,
           token,
@@ -118,6 +119,7 @@ exports.loginUser = async (req, res) => {
       message: "Login Success",
       data: {
         user: {
+          id: checkEmail.id,
           email: checkEmail.email,
           fullName: checkEmail.fullName,
           token,

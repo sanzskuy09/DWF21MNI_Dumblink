@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { useMutation } from "react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 
 import "./homepage.css";
-import { Navbar, Form, Button } from "react-bootstrap";
+import { Col, Navbar, Row, Form, Button } from "react-bootstrap";
 
-import phone from "../../Assets/images/Phone.png";
 import template1 from "../../Assets/images/template1.svg";
 import template2 from "../../Assets/images/template2.svg";
 import template3 from "../../Assets/images/template3.svg";
@@ -16,10 +15,10 @@ import { API } from "../../Config/api";
 
 import NavVertical from "./NavVertical";
 
-const CreateLink = () => {
+const EditLink = () => {
   const history = useHistory();
   const params = useParams();
-  const { id } = params;
+  const { uniqueLink } = params;
 
   const [subLinks, setSubLinks] = useState({
     title: "",
@@ -28,29 +27,49 @@ const CreateLink = () => {
     imagePreview: "",
   });
   const [form, setForm] = useState({
+    id: "",
     title: "",
     description: "",
+    template: "",
     image: null,
     imagePreview: "",
-    template: id,
     links: [subLinks, subLinks],
   });
 
-  const { title, description, links, template, imagePreview } = form;
+  console.log("ini from", form);
 
-  // change title & desc
-  // const onChange = (e) => {
-  //   setForm({
-  //     ...form,
-  //     [e.target.name]: e.target.value,
-  //   });
-  // };
+  const { id, title, description, links, template, imagePreview, image } = form;
+
+  const { data: linkData, refetch } = useQuery("linkCache", async () => {
+    const response = await API.get(`/link/${uniqueLink}`);
+    const data = response?.data?.data?.links;
+    return data;
+  });
+
+  const getData = () => {
+    const data = linkData;
+
+    setForm({
+      ...form,
+      id: data?.id,
+      title: data?.title,
+      description: data?.description,
+      template: data?.template,
+      imagePreview: data?.image,
+      links: data?.links?.map((link) => ({
+        ...link,
+        image: null,
+        imagePreview: link.image,
+      })),
+    });
+  };
+
+  useEffect(() => {
+    getData();
+  }, [linkData]);
 
   const onChange = (e) => {
     const tempForm = { ...form };
-    // tempForm[e.target.name] =
-    //   e.target.type === "file" ? e.target.files[0] : e.target.value;
-
     if (e.target.type === "file") {
       tempForm[e.target.name] = e.target.files[0];
 
@@ -70,20 +89,6 @@ const CreateLink = () => {
     }
     setForm(tempForm);
   };
-
-  // change sublinks
-  // const onChangeLink = (e, index) => {
-  //   const tempLink = { ...subLinks };
-  //   tempLink[index][e.target.name] =
-  //     e.target.type === "file" ? e.target.files[0].name : e.target.value;
-  //   console.log(e?.target?.files);
-  //   setSubLinks(tempLink);
-
-  //   setForm({
-  //     ...form,
-  //     links: subLinks,
-  //   });
-  // };
 
   const onChangeLink = (e, index) => {
     const newLinks = links.map((link, sIndex) => {
@@ -114,8 +119,6 @@ const CreateLink = () => {
         reader.readAsDataURL(file);
       }
 
-      // tempLink[e.target.name] = e.target.value;
-
       return tempLink;
     });
 
@@ -125,34 +128,8 @@ const CreateLink = () => {
     });
   };
 
-  // handle click event of the Remove Link
-  // const handleRemoveClick = (index) => {
-  //   const tempLink = [...subLinks];
-  //   tempLink.splice(index, 1);
-  //   setSubLinks(tempLink);
-  // };
-
-  const handleRemoveClick = (index) => {
-    setForm({
-      ...form,
-      links: form.links.filter((l, sIndex) => index !== sIndex),
-    });
-  };
-
-  // handle click event of the Add Link
-  // const handleAddLink = () => {
-  //   setSubLinks([...subLinks, { title: "", url: "", image: null }]);
-  // };
-
-  const handleAddLink = () => {
-    setForm({
-      ...form,
-      links: form.links.concat([subLinks]),
-    });
-  };
-
-  // query add link
-  const addLink = useMutation(async () => {
+  // query edit link
+  const editLink = useMutation(async () => {
     const config = {
       headers: {
         "Content-Type": "mutipart/form-data",
@@ -162,80 +139,61 @@ const CreateLink = () => {
     let newLinks = [];
     for (let index = 0; index < form.links.length; index++) {
       const bodyLink = new FormData();
-      bodyLink.append("imageLink", links[index].image);
 
-      const res = await API.post("/image-link", bodyLink, config);
-      // console.log(res);
+      if (links[index].image == null) {
+        const thisLink = {
+          ...links[index],
+          image: links[index].imagePreview,
+        };
+        newLinks.push(thisLink);
+      }
 
-      const thisLink = {
-        ...links[index],
-        imagePreview: "",
-        image: res.data.data.image,
-      };
-      newLinks.push(thisLink);
+      if (links[index].image != null) {
+        bodyLink.append("imageLink", links[index].image);
+
+        const res = await API.post("/image-link", bodyLink, config);
+        const dataImageLink = res?.data?.data?.image;
+
+        const thisLink = {
+          ...links[index],
+          image: dataImageLink,
+        };
+        newLinks.push(thisLink);
+      }
     }
 
     const body = new FormData();
 
     body.append("title", title);
     body.append("description", description);
-    body.append("imageFile", form.image);
     body.append("template", template);
+    body.append("imageFile", image);
+
     body.append("links", JSON.stringify(newLinks));
 
-    const res = await API.post("/link", body, config);
+    const res = await API.patch(`/edit/${id}`, body, config);
 
-    setForm({
-      title: "",
-      description: "",
-      image: null,
-      links: [subLinks, subLinks],
-    });
-    setSubLinks({
-      title: "",
-      url: "",
-      image: null,
-    });
     history.push("/my-link");
   });
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    addLink.mutate();
+    editLink.mutate();
   };
 
-  // useEffect(() => {
-  //   handleAddLink();
-  // }, []);
+  const handleRemoveClick = (index) => {
+    setForm({
+      ...form,
+      links: form.links.filter((l, sIndex) => index !== sIndex),
+    });
+  };
 
-  // upload file
-
-  // const [selectedFile, setSelectedFile] = useState();
-  // const [preview, setPreview] = useState();
-
-  // useEffect(() => {
-  //   if (!selectedFile) {
-  //     setPreview(undefined);
-  //     return;
-  //   }
-
-  //   const objectUrl = URL.createObjectURL(selectedFile);
-  //   setPreview(objectUrl);
-
-  //   // free memory when ever this component is unmounted
-  //   return () => URL.revokeObjectURL(objectUrl);
-  // }, [selectedFile]);
-
-  // const onSelectFile = (e) => {
-  //   if (!e.target.files || e.target.files.length === 0) {
-  //     setSelectedFile(undefined);
-  //     return;
-  //   }
-
-  //   // I've kept this example simple by using the first image instead of multiple
-  //   setSelectedFile(e.target.files[0]);
-  //   console.log(e.target.files);
-  // };
+  const handleAddLink = () => {
+    setForm({
+      ...form,
+      links: form.links.concat([subLinks]),
+    });
+  };
 
   return (
     <div className="container-createlink">
@@ -252,14 +210,14 @@ const CreateLink = () => {
           className="d-flex justify-content-between text-title p-3"
           style={{ marginLeft: "21%" }}
         >
-          <div className="">Create Link</div>
+          <div className="">Edit Link</div>
           <div className="">
             <Button
               variant="transparant"
               className="btn btn-publish btn-style"
               type="submit"
             >
-              Publish Link
+              Save Link
             </Button>
           </div>
         </div>
@@ -274,7 +232,7 @@ const CreateLink = () => {
                   {imagePreview != "" ? (
                     <img src={imagePreview} className="img-upload" />
                   ) : (
-                    <img src={exam} alt={exam} className="img-upload" />
+                    <img src={image} alt={image} className="img-upload" />
                   )}
                 </label>
                 <input
@@ -375,11 +333,6 @@ const CreateLink = () => {
                       </Button>
                     )}
                   </div>
-                  {/* {subLinks.length > 2 && (
-                    <button onClick={() => handleRemoveClick(index)}>
-                      <img src={deleteImg} alt="" />
-                    </button>
-                  )} */}
                 </div>
               );
             })}
@@ -398,16 +351,16 @@ const CreateLink = () => {
             </Button>
           </div>
           <div className="d-flex align-self-center template-img">
-            {template == 1 && (
+            {linkData?.template == 1 && (
               <img src={template1} alt={template1} style={{ width: "16vw" }} />
             )}
-            {template == 2 && (
+            {linkData?.template == 2 && (
               <img src={template2} alt={template2} style={{ width: "16vw" }} />
             )}
-            {template == 3 && (
+            {linkData?.template == 3 && (
               <img src={template3} alt={template3} style={{ width: "16vw" }} />
             )}
-            {template == 4 && (
+            {linkData?.template == 4 && (
               <img src={template4} alt={template4} style={{ width: "16vw" }} />
             )}
           </div>
@@ -417,4 +370,4 @@ const CreateLink = () => {
   );
 };
 
-export default CreateLink;
+export default EditLink;

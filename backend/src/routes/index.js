@@ -17,6 +17,7 @@ const {
   updateCount,
   addLinkNoMulter,
   uploadImageSublinks,
+  editLink,
 } = require("../controllers/link");
 
 const { registerUser, loginUser, checkAuth } = require("../controllers/auth");
@@ -36,6 +37,7 @@ router.get("/link/:uniqueLink", authenticated, getlinks);
 router.post("/link", authenticated, uploadFile("imageFile"), addLink);
 // router.post("/link", authenticated, addLinkNoMulter);
 router.patch("/link/:uniqueLink", authenticated, updateCount);
+router.patch("/edit/:id", authenticated, uploadFile("imageFile"), editLink);
 router.delete("/link/:id", authenticated, deleteLink);
 
 // upload image sublink

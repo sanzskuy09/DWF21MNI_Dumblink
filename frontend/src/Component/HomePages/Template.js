@@ -1,16 +1,22 @@
 import { Col, Navbar, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
 
 import template1 from "../../Assets/images/template1.svg";
 import template2 from "../../Assets/images/template2.svg";
 import template3 from "../../Assets/images/template3.svg";
 import template4 from "../../Assets/images/template4.svg";
 
+import { UserContext } from "../../Contexts/userContext";
+
 import "./homepage.css";
 
 import NavVertical from "./NavVertical";
 
 const Template = () => {
+  const [state] = useContext(UserContext);
+
+  console.log(state.user);
   return (
     <>
       <NavVertical />

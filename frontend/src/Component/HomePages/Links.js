@@ -57,6 +57,9 @@ const Links = ({ link, handleDelete }) => {
           alt={ICEedit}
           className=" mr-4 icon-img"
           type="button"
+          onClick={() => {
+            history.push(`/edit/${uniqueLink}`);
+          }}
         />
         <img
           src={ICDelete}

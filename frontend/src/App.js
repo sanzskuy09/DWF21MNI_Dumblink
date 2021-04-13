@@ -15,14 +15,15 @@ import { UserContext } from "./Contexts/userContext";
 import { API, setAuthToken } from "./Config/api";
 
 import LandingPage from "./Pages/LandingPage";
+import PreviewPage from "./Pages/PreviewPage";
+
 import Template from "./Component/HomePages/Template";
 import Profile from "./Component/HomePages/Profile";
 import MyLink from "./Component/HomePages/MyLink";
 import NavVertical from "./Component/HomePages/NavVertical";
-
 import PrivateRoute from "./Component/PrivateRoute";
+import EditLink from "./Component/HomePages/EditLink";
 import CreateLink from "./Component/HomePages/CreateLink";
-import PreviewPage from "./Pages/PreviewPage";
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -74,13 +75,14 @@ function App() {
               path="/create-link/:id"
               component={CreateLink}
             />
-            <PrivateRoute exact path="/my-link" component={MyLink} />
             <PrivateRoute exact path="/profile" component={Profile} />
+            <PrivateRoute exact path="/my-link" component={MyLink} />
             <PrivateRoute
               exact
               path="/dumblink/:uniqueLink"
               component={PreviewPage}
             />
+            <PrivateRoute exact path="/edit/:uniqueLink" component={EditLink} />
           </Switch>
         </div>
       </Router>

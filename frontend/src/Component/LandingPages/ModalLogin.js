@@ -48,7 +48,7 @@ const ModalLogin = ({ showLogin, setShowLogin, changeModal }) => {
       type: "LOGIN_SUCCESS",
       payload: response.data.data.user,
     });
-    console.log(response.data.data.user);
+    console.log("ini res", response.data.data.user);
 
     setAuthToken(response.data.data.user.token);
     refetch();
