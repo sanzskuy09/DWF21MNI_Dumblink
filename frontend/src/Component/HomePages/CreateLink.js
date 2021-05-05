@@ -3,9 +3,8 @@ import { useMutation } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 
 import "./homepage.css";
-import { Navbar, Form, Button } from "react-bootstrap";
+import { Navbar, Form, Button, Alert } from "react-bootstrap";
 
-import phone from "../../Assets/images/Phone.png";
 import template1 from "../../Assets/images/template1.svg";
 import template2 from "../../Assets/images/template2.svg";
 import template3 from "../../Assets/images/template3.svg";
@@ -38,18 +37,8 @@ const CreateLink = () => {
 
   const { title, description, links, template, imagePreview } = form;
 
-  // change title & desc
-  // const onChange = (e) => {
-  //   setForm({
-  //     ...form,
-  //     [e.target.name]: e.target.value,
-  //   });
-  // };
-
   const onChange = (e) => {
     const tempForm = { ...form };
-    // tempForm[e.target.name] =
-    //   e.target.type === "file" ? e.target.files[0] : e.target.value;
 
     if (e.target.type === "file") {
       tempForm[e.target.name] = e.target.files[0];
@@ -70,20 +59,6 @@ const CreateLink = () => {
     }
     setForm(tempForm);
   };
-
-  // change sublinks
-  // const onChangeLink = (e, index) => {
-  //   const tempLink = { ...subLinks };
-  //   tempLink[index][e.target.name] =
-  //     e.target.type === "file" ? e.target.files[0].name : e.target.value;
-  //   console.log(e?.target?.files);
-  //   setSubLinks(tempLink);
-
-  //   setForm({
-  //     ...form,
-  //     links: subLinks,
-  //   });
-  // };
 
   const onChangeLink = (e, index) => {
     const newLinks = links.map((link, sIndex) => {
@@ -114,8 +89,6 @@ const CreateLink = () => {
         reader.readAsDataURL(file);
       }
 
-      // tempLink[e.target.name] = e.target.value;
-
       return tempLink;
     });
 
@@ -125,24 +98,12 @@ const CreateLink = () => {
     });
   };
 
-  // handle click event of the Remove Link
-  // const handleRemoveClick = (index) => {
-  //   const tempLink = [...subLinks];
-  //   tempLink.splice(index, 1);
-  //   setSubLinks(tempLink);
-  // };
-
   const handleRemoveClick = (index) => {
     setForm({
       ...form,
       links: form.links.filter((l, sIndex) => index !== sIndex),
     });
   };
-
-  // handle click event of the Add Link
-  // const handleAddLink = () => {
-  //   setSubLinks([...subLinks, { title: "", url: "", image: null }]);
-  // };
 
   const handleAddLink = () => {
     setForm({
@@ -204,39 +165,6 @@ const CreateLink = () => {
     addLink.mutate();
   };
 
-  // useEffect(() => {
-  //   handleAddLink();
-  // }, []);
-
-  // upload file
-
-  // const [selectedFile, setSelectedFile] = useState();
-  // const [preview, setPreview] = useState();
-
-  // useEffect(() => {
-  //   if (!selectedFile) {
-  //     setPreview(undefined);
-  //     return;
-  //   }
-
-  //   const objectUrl = URL.createObjectURL(selectedFile);
-  //   setPreview(objectUrl);
-
-  //   // free memory when ever this component is unmounted
-  //   return () => URL.revokeObjectURL(objectUrl);
-  // }, [selectedFile]);
-
-  // const onSelectFile = (e) => {
-  //   if (!e.target.files || e.target.files.length === 0) {
-  //     setSelectedFile(undefined);
-  //     return;
-  //   }
-
-  //   // I've kept this example simple by using the first image instead of multiple
-  //   setSelectedFile(e.target.files[0]);
-  //   console.log(e.target.files);
-  // };
-
   return (
     <div className="container-createlink">
       <NavVertical />
@@ -268,6 +196,9 @@ const CreateLink = () => {
 
         <div className="d-flex" style={{ marginLeft: "22%" }}>
           <div className="d-flex flex-column p-4 add-links scroll-bar">
+            {addLink.status == "error" && (
+              <Alert variant="success">User successfully updated</Alert>
+            )}
             <div className="d-flex align-items-center mb-5">
               <div className="image-upload">
                 <label for="file-input">
@@ -304,6 +235,7 @@ const CreateLink = () => {
                 value={title}
                 onChange={(e) => onChange(e)}
                 autoComplete="off"
+                required
               />
             </Form.Group>
             <Form.Group className="form-group" style={{ marginBottom: "8vh" }}>
@@ -316,6 +248,7 @@ const CreateLink = () => {
                 value={description}
                 onChange={(e) => onChange(e)}
                 autoComplete="off"
+                required
               />
             </Form.Group>
 
@@ -351,6 +284,7 @@ const CreateLink = () => {
                         value={link.title}
                         onChange={(e) => onChangeLink(e, index)}
                         autoComplete="off"
+                        required
                       />
                     </Form.Group>
                     <Form.Group className="form-group">
@@ -363,6 +297,7 @@ const CreateLink = () => {
                         value={link.url}
                         onChange={(e) => onChangeLink(e, index)}
                         autoComplete="off"
+                        required
                       />
                     </Form.Group>
                     {form?.links?.length > 2 && (
@@ -375,11 +310,6 @@ const CreateLink = () => {
                       </Button>
                     )}
                   </div>
-                  {/* {subLinks.length > 2 && (
-                    <button onClick={() => handleRemoveClick(index)}>
-                      <img src={deleteImg} alt="" />
-                    </button>
-                  )} */}
                 </div>
               );
             })}
